@@ -1,0 +1,17 @@
+1. docker compose up
+2. create 2 folders app and public
+3. public->index.php and .htaccess
+4. src-> .htaccess
+5. app->models, views, controllers
+6. controllers->Indexcontroller.php
+
+in public->index.php we add libraries
+         -> define paths
+         -> create a new loader
+         -> loader->register directories->register
+         -> create new DI COntainer
+         -> with the help of DI container use set or set shared to set dependencies
+         -> create a new application
+
+7. If a controller have IndexController->indexAction then view have
+    index folder->index.phtml
