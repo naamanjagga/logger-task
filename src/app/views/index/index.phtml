@@ -1,7 +1,32 @@
 <?php 
-echo $variable1;
-echo '<br>';
-echo $variable2;
-echo '<br>';
-echo $variable3;
+// echo $variable1;
+// echo '<br>';
+// echo $variable2;
+// echo '<br>';
+// echo $variable3;
+// echo '<br>';
+// echo $variable4;
 ?>
+
+<h2>Log in form</h2>
+
+<?php echo $this->tag->form("index/login"); ?>
+
+    <p>
+        <label for="email">E-Mail</label>
+        <?php echo $this->tag->textField("email"); ?>
+    </p>
+    <p>
+        <label for="Password">Password</label>
+        <?php echo $this->tag->passwordField("password"); ?>
+    </p>
+    <p>
+        <label for="remember-me">remember-me</label>
+        <?php echo $this->tag->checkField("remember-me"); ?>
+    </p>
+
+    <p>
+        <?php echo $this->tag->submitButton("login"); ?>
+    </p>
+
+</form>

@@ -1,15 +1,18 @@
-<?php 
+<?php
 
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Loader;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\Application;
 use Phalcon\Url;
+use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Session\Adapter\Stream as SessionAdapter;
+use Phalcon\Session\Manager as SessionManager;
 use Phalcon\Config;
 use Phalcon\Config\ConfigFactory;
-use Phalcon\Db\Adapter\Pdo\Mysql as DbAdapter;
-
-
+use Phalcon\Mvc\Router;
+use Phalcon\Http\Response;
+use Phalcon\Http\Response\Cookies;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
@@ -28,12 +31,52 @@ $loader->register();
 
 $container = new FactoryDefault();
 
+
+// $container->set(
+//     'db',
+//     function () use ($config) {
+//         return new Mysql(
+//             [
+//                 'host'     => $config->db->host,
+//                 'username' => $config->db->username,
+//                 'password' => $config->db->password,
+//                 'dbname'   => $config->db->name,
+//             ]
+//         );
+//     }
+// );
+
+
+$container->set(
+    'db',
+    function () {
+        return new Mysql(
+            [
+                'host'     => 'mysql-server',
+                'username' => 'root',
+                'password' => 'secret',
+                'dbname'   => 'mydatabase',
+            ]
+        );
+    }
+);
+
+$container->setShared('session', function () {
+    $session = new SessionManager();
+    $files = new SessionAdapter([
+        'savePath' => sys_get_temp_dir(),
+    ]);
+    $session->setAdapter($files);
+    $session->start();
+
+    return $session;
+});
+
 $container->set(
     'view',
     function () {
         $view = new View();
         $view->setViewsDir(APP_PATH . '/views/');
-
         return $view;
     }
 );
@@ -43,43 +86,85 @@ $container->set(
     function () {
         $url = new Url();
         $url->setBaseUri('/');
-
         return $url;
     }
 );
 
+
 $container->set(
     'config',
     function () {
-        $fileName = '../app/config_etc/config.php';
+        $fileName = '../app/config/config.php';
         $factory  = new ConfigFactory();
 
         return $factory->newInstance('php', $fileName);
-
     },
     true
 );
 
+$router = new Router();
+
+$router->add(
+    '/',
+    [
+        'controller' => 'index',
+        'action'     => 'index',
+    ]
+);
+
+$router->handle(
+    $_SERVER["REQUEST_URI"]
+);
 
 $container->set(
-    'db',
-    function () use ($config) {
-        return new DbAdapter(
-            [
-                'host'     => $config->database->host,
-                'username' => $config->database->username,
-                'password' => $config->database->password,
-                'dbname'   => $config->database->name,
-            ]
+    'error',
+    function () {
+        $response = new Response(
+            "Sorry, the page doesn't exist",
+            404,
+            'Not Found'
         );
+    },
+    true
+);
+
+$container->set(
+    "cookies",
+    function () {
+        $cookies = new Cookies();
+        $cookies->useEncryption(false);
+        return $cookies;
+    }
+);
+
+$container->set(
+    "crypt",
+    function () {
+        $crypt = new Crypt();
+        $crypt->setKey('AED@!sft56$');
+        return $crypt;
+    }
+);
+
+$container->set(
+    "service",
+    function () {
+        $ts = new DateTime();
+        $str = $ts->format('Y-m-d H:i:s:u');
+        return $str;
     }
 );
 
 
 $application = new Application($container);
 
-$response = $application->handle(
-    $_SERVER["REQUEST_URI"]
-);
+try {
+    // Handle the request
+    $response = $application->handle(
+        $_SERVER["REQUEST_URI"]
+    );
 
-$response->send();
+    $response->send();
+} catch (\Exception $e) {
+    echo 'Exception: ', $e->getMessage();
+}
