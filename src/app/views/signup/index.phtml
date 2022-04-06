@@ -1,0 +1,40 @@
+
+
+<h2>Sign up using this form</h2>
+<?php echo $this->tag->linkTo(["/" , "login here" ,"class" => "btn btn-lg bg-dark text-muted mx-2"]); 
+
+    ?>
+<?php echo $this->tag->form("signup/register"); ?>
+
+    <p>
+        <label for="name">Name</label>
+        <?php echo $this->tag->textField("name"); ?>
+    </p>
+
+    <p>
+        <label for="email">E-Mail</label>
+        <?php echo $this->tag->emailField("email"); ?>
+    </p>
+
+    <p>
+        <label for="psaaword">PASSWORD</label>
+        <?php echo $this->tag->passwordField("password"); ?>
+    </p>
+
+    <p>
+        <label for="role">ROLE</label>
+        <?php echo $this->tag->textField("role"); ?>
+        <!-- <input type="text" name="role" disabled value="user" > -->
+    </p>
+
+    <p>
+        <label for="status">STATUS</label>
+        <?php echo $this->tag->textField("status"); ?>
+        <!-- <input type="text" name="status" disabled value="restricted" > -->
+    </p>
+
+    <p>
+        <?php echo $this->tag->submitButton("Register"); ?>
+    </p>
+
+</form>

@@ -13,6 +13,9 @@ use Phalcon\Config\ConfigFactory;
 use Phalcon\Mvc\Router;
 use Phalcon\Http\Response;
 use Phalcon\Http\Response\Cookies;
+use Phalcon\Escaper;
+use Phalcon\Logger;
+use Phalcon\Logger\Adapter\Stream;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
@@ -24,8 +27,19 @@ $loader->registerDirs(
     [
         APP_PATH . '/controllers/',
         APP_PATH . '/models/',
+        APP_PATH . '/components/',
     ]
 );
+
+$loader->register();
+
+$loader = new Loader();
+
+// $loader->registerClasses(
+//     [
+//         'myEscape' =>  APP_PATH .'/components/myescape.php',
+//     ]
+// );
 
 $loader->register();
 
@@ -46,6 +60,13 @@ $container = new FactoryDefault();
 //     }
 // );
 
+$container->set(
+    'escaper',
+    function ()  {
+        $escaper = new Escaper();
+        return $escaper;
+    }
+);
 
 $container->set(
     'db',
@@ -154,7 +175,33 @@ $container->set(
         return $str;
     }
 );
+$container->set(
+    "logger1",
+    function (){
+    $adapter1 = new Stream(APP_PATH.'/logs/login.log');
+    $logger1  = new Logger(
+       'messages',
+        [
+            'login' => $adapter1,
+        ]
+        );
+     return $logger1;
+    }
+  );
 
+  $container->set(
+    "logger2",
+    function (){
+    $adapter2 = new Stream(APP_PATH.'/logs/sign.log');
+    $logger2  = new Logger(
+       'messages',
+        [
+            'login' => $adapter2,
+        ]
+        );
+     return $logger2;
+    }
+  );
 
 $application = new Application($container);
 
